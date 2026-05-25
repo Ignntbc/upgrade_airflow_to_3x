@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Airflow runtime
+logs/
+!logs/.gitkeep
+
+# Локальные секреты (НЕ КОММИТИТЬ настоящие)
+# .env
+
+# IDE
+.idea/
+.vscode/

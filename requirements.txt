@@ -1,0 +1,5 @@
+# Дополнительные зависимости для Airflow 2.7.3 (CeleryExecutor + RabbitMQ + Postgres)
+apache-airflow-providers-celery==3.4.1
+apache-airflow-providers-postgres==5.7.1
+celery[amqp]==5.3.4
+amqp==5.1.1

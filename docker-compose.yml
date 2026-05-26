@@ -36,7 +36,7 @@ x-airflow-common: &airflow-common
     # Эффективный airflow.cfg, общий для всех Airflow-сервисов.
     # Монтируется read-only: правки делаются в файле в репозитории, не в контейнере.
     # ВНИМАНИЕ: env-переменные AIRFLOW__* (см. ниже) ПЕРЕОПРЕДЕЛЯЮТ значения из cfg.
-    - ./airflow.cfg:/opt/airflow/airflow.cfg:ro
+    - ./airflow.cfg:/opt/airflow/airflow.cfg
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on: &airflow-common-depends-on
     postgres:

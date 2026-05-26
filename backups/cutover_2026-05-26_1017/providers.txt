@@ -1,0 +1,35 @@
+package_name                             | description                                                                                  | version
+=========================================+==============================================================================================+========
+apache-airflow-providers-amazon          | Amazon integration (including Amazon Web Services (AWS) https://aws.amazon.com/)             | 8.10.0 
+apache-airflow-providers-celery          | Celery http://www.celeryproject.org/                                                         | 3.4.1  
+apache-airflow-providers-cncf-kubernetes | Kubernetes https://kubernetes.io/                                                            | 7.8.0  
+apache-airflow-providers-common-sql      | Common SQL Provider https://en.wikipedia.org/wiki/SQL                                        | 1.8.0  
+apache-airflow-providers-daskexecutor    | Dask https://www.dask.org/                                                                   | 1.1.0  
+apache-airflow-providers-docker          | Docker https://docs.docker.com/install/                                                      | 3.8.0  
+apache-airflow-providers-elasticsearch   | Elasticsearch https://www.elastic.co/elasticsearch                                           | 5.1.0  
+apache-airflow-providers-ftp             | File Transfer Protocol (FTP) https://tools.ietf.org/html/rfc114                              | 3.6.0  
+apache-airflow-providers-google          | Google services including:                                                                   | 10.11.0
+                                         |                                                                                              |        
+                                         |   - Google Ads https://ads.google.com/                                                       |        
+                                         |   - Google Cloud (GCP) https://cloud.google.com/                                             |        
+                                         |   - Google Firebase https://firebase.google.com/                                             |        
+                                         |   - Google LevelDB https://github.com/google/leveldb/                                        |        
+                                         |   - Google Marketing Platform https://marketingplatform.google.com/                          |        
+                                         |   - Google Workspace https://workspace.google.com/ (formerly Google Suite)                   |        
+apache-airflow-providers-grpc            | gRPC https://grpc.io/                                                                        | 3.3.0  
+apache-airflow-providers-hashicorp       | Hashicorp including Hashicorp Vault https://www.vaultproject.io/                             | 3.5.0  
+apache-airflow-providers-http            | Hypertext Transfer Protocol (HTTP) https://www.w3.org/Protocols/                             | 4.6.0  
+apache-airflow-providers-imap            | Internet Message Access Protocol (IMAP) https://tools.ietf.org/html/rfc3501                  | 3.4.0  
+apache-airflow-providers-microsoft-azure | Microsoft Azure https://azure.microsoft.com/                                                 | 8.1.0  
+apache-airflow-providers-mysql           | MySQL https://www.mysql.com/products/                                                        | 5.4.0  
+apache-airflow-providers-odbc            | ODBC https://github.com/mkleehammer/pyodbc/wiki                                              | 4.1.0  
+apache-airflow-providers-openlineage     | OpenLineage https://openlineage.io/                                                          | 1.2.0  
+apache-airflow-providers-postgres        | PostgreSQL https://www.postgresql.org/                                                       | 5.7.1  
+apache-airflow-providers-redis           | Redis https://redis.io/                                                                      | 3.4.0  
+apache-airflow-providers-sendgrid        | Sendgrid https://sendgrid.com/                                                               | 3.3.0  
+apache-airflow-providers-sftp            | SSH File Transfer Protocol (SFTP) https://tools.ietf.org/wg/secsh/draft-ietf-secsh-filexfer/ | 4.7.0  
+apache-airflow-providers-slack           | Slack https://slack.com/                                                                     | 8.3.0  
+apache-airflow-providers-snowflake       | Snowflake https://www.snowflake.com/                                                         | 5.1.0  
+apache-airflow-providers-sqlite          | SQLite https://www.sqlite.org/                                                               | 3.5.0  
+apache-airflow-providers-ssh             | Secure Shell (SSH) https://tools.ietf.org/html/rfc4251                                       | 3.8.1  
+                                                                                                                                                 

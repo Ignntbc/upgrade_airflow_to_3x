@@ -370,6 +370,16 @@ AIRFLOW__CORE__SQL_ALCHEMY_CONN             →  AIRFLOW__DATABASE__SQL_ALCHEMY_
 AIRFLOW__CORE__DAG_CONCURRENCY              →  AIRFLOW__CORE__MAX_ACTIVE_TASKS_PER_DAG
 AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL   →  AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL
 ```
+!ВАЖНО!
+Ошибка 1
+В Airflow 3.x появился отдельный механизм аутентификации между компонентами (scheduler/worker/triggerer ↔ api-server) через JWT — это часть новой Task Execution API (одно из главных архитектурных изменений 3.x: воркеры больше не ходят в БД напрямую, а только через api-server, и каждый запрос подписан JWT).
+На стадии запуска возникла проблема с JWT токеном. Лечил добавлением в .cfg переменной jwt_secret.
+генерил с помощью команды python3 -c "import secrets; print(secrets.token_urlsafe(64))"
+
+Ошибка 2
+httpx.ConnectError: [Errno 111] Connection refused у воркера
+В Airflow 3.x воркеры больше не ходят в БД напрямую — каждое обновление состояния таски они шлют HTTP-запросом в api-server (это и есть Task Execution API). Адрес api-server задаётся отдельной настройкой:
+execution_api_server_url=http://airflow-api-server:8080/execution/ # указываем днс апи сервера 
 
 **Как обнаружить deprecated-параметры в текущем стенде (2.7.3)**
 
@@ -629,3 +639,72 @@ docker compose up -d
 > Версии в этом документе зафиксированы на момент составления плана.
 > Перед фактическим выполнением миграции **обязательно** свериться с
 > актуальными release notes Airflow 3.2.x.
+
+
+Этап B — Финальный снимок + останов 2.7.3
+bash
+cd /home/eduard/work/t1/upgrade_airflow_to_3x
+
+# 1. Снимок (~2 мин)
+SNAP="backups/cutover_$(date +%F_%H%M)"
+mkdir -p "$SNAP"
+docker compose exec -T postgres \
+    pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists \
+    > "$SNAP/airflow_db.sql"
+docker compose exec airflow-scheduler-1 airflow config list  > "$SNAP/cfg_2.7.3.txt" 2>&1
+docker compose exec airflow-scheduler-1 airflow version       > "$SNAP/version.txt"
+docker compose exec airflow-scheduler-1 airflow providers list > "$SNAP/providers.txt"
+docker compose exec airflow-scheduler-1 pip freeze            > "$SNAP/pip_freeze.txt"
+
+# 2. Останов БЕЗ -v (тома сохраняем!)
+docker compose stop
+
+Этап D — Сборка образа 3.2.1 (5–10 мин)
+bash
+docker compose build --no-cache
+docker images | grep airflow-custom   # должен появиться airflow-custom:3.2.1
+
+
+Этап E — Конфиг + миграция БД на новом образе (3–5 мин)
+bash
+# Сухой прогон утилиты config update — посмотрим, что нужно поправить
+docker compose run --rm airflow-scheduler-1 airflow config update
+
+# Удалить orphan-контейнер старого webserver (тома НЕ трогаются)
+docker rm airflow_webserver
+Или сразу при следующем up:
+bash
+docker compose up -d --remove-orphans
+
+# Применить автофикс (правит наш airflow.cfg)
+docker compose run --rm airflow-scheduler-1 airflow config update --fix
+
+# Накатить миграции схемы метаданных
+docker compose run --rm airflow-scheduler-1 airflow db migrate
+
+# Проверка
+docker compose run --rm airflow-scheduler-1 airflow db check-migrations
+docker compose run --rm airflow-scheduler-1 airflow ver
+
+Этап F — Старт 3.2.1
+bash
+# Удалить orphan-контейнер старого webserver (тома НЕ трогаются)
+docker rm airflow_webserver
+Или сразу при следующем up:
+bash
+docker compose up -d --remove-orphans
+
+Этап G — Smoke-тест
+bash
+curl -fsS http://localhost:8080/api/v2/version | jq
+docker compose exec airflow-scheduler-1 airflow dags list-import-errors  # пусто = норм
+docker compose exec airflow-scheduler-1 airflow dags list
+docker compose exec airflow-api-server   airflow jobs check --job-type SchedulerJob
+docker compose exec airflow-dag-processor airflow jobs check --job-type DagProcessorJob
+docker compose exec airflow-triggerer    airflow jobs check --job-type TriggererJob
+
+Артефакты после dry-run (касательно cfg)
+
+🔴 BREAKING — удалён	[logging] log_filename_template	—	Удалить из cfg. В 3.x шаблон имени файла лога зашит в код (task_id={ti.task_id}/run_id={ti.run_id}/...). Кастомизировать его теперь нельзя через cfg — только через provider'ы.
+🟡 BREAKING — переименован	[webserver] cookie_samesite	[fab] cookie_samesite	Перенести в секцию [fab]. Семантика та же — настройка SameSite-куки сессии. Теперь принадлежит FAB-провайдеру (он отвечает за UI + аутентификацию).
+🟡 BREAKING — переименован	[webserver] cookie_secure	[fab] cookie_secure	То же — перенести в [fab]. Управляет флагом Secure для cookie сессии (только по HTTPS).

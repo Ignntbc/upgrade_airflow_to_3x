@@ -1,5 +1,5 @@
-# Дополнительные зависимости для Airflow 2.7.3 (CeleryExecutor + RabbitMQ + Postgres)
-apache-airflow-providers-celery==3.4.1
-apache-airflow-providers-postgres==5.7.1
-celery[amqp]==5.3.4
-amqp==5.1.1
+# Доп. провайдеры для Airflow 3.2.1.
+# Базовый Airflow + celery + postgres + fab уже установлены через extras в Dockerfile.
+
+# Bash/Python/Empty-операторы в 3.x вынесены в standard provider
+apache-airflow-providers-standard
